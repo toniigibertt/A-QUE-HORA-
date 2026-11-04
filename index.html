@@ -76,11 +76,26 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0}
 .leg i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
 .box{background:var(--card);border-radius:20px;padding:16px;margin-bottom:12px}
 .box h3{margin:0 0 8px;font-size:13px;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+details.box{padding:0;overflow:hidden}
+details.box>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:54px;padding:16px;cursor:pointer;list-style:none;user-select:none;-webkit-user-select:none;border-radius:20px}
+details.box>summary::-webkit-details-marker{display:none}
+details.box>summary h3{margin:0;font-size:15px;font-weight:650;color:var(--tx);text-transform:none;letter-spacing:0}
+details.box>summary::after{content:"";flex:none;width:8px;height:8px;border-right:2px solid var(--mu);border-bottom:2px solid var(--mu);border-radius:1px;transform:rotate(45deg);transition:transform .25s ease;margin:-3px 4px 0 0}
+details.box[open]>summary::after{transform:rotate(-135deg);margin-top:3px}
+.accb{padding:0 16px 16px}
+.accb details>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:6px 0;color:var(--mu);font-size:14px}
+.accb details>summary::-webkit-details-marker{display:none}
+.accb details>summary::before{content:"";flex:none;width:6px;height:6px;border-right:1.8px solid var(--mu);border-bottom:1.8px solid var(--mu);transform:rotate(-45deg);transition:transform .2s ease;margin:0 4px 0 2px}
+.accb details[open]>summary::before{transform:rotate(45deg)}
+details.box[open]>.accb{animation:accIn .22s ease}
+@keyframes accIn{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
 .chip{display:inline-block;border:1.5px solid var(--bd);border-radius:99px;padding:6px 13px;margin:0 6px 6px 0;font-size:15px}
 .chip.on{border-color:var(--ac);background:var(--ac);color:var(--bg)}
 .chip.add{color:var(--mu);border-style:dashed}
 #sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:9}
 #sheet.on{display:flex}
+#sheet.on #sb{animation:sheetUp .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes sheetUp{from{transform:translateY(22px);opacity:.65}to{transform:none;opacity:1}}
 #sb{background:var(--card);width:100%;max-width:480px;max-height:92%;overflow-y:auto;border-radius:24px 24px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom,0px))}
 #sb:focus{outline:none}
 .r2{display:flex;gap:10px;margin:8px 0 12px}.r2>div{flex:1}
@@ -99,9 +114,19 @@ input[type=color]{width:46px;height:46px;border:0;border-radius:12px;padding:0;b
 .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.top b{font-size:24px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.top button{font-size:15px;color:var(--mu);font-weight:600;white-space:nowrap}
 .fe{color:var(--fe);font-size:14px;font-weight:600;margin-top:2px}
 .warn{color:var(--fe);font-size:14px}
+#splash{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;flex-direction:column;background:radial-gradient(130% 90% at 12% 8%,#eab776 0%,rgba(234,183,118,0) 58%),radial-gradient(130% 90% at 92% 96%,#6675c9 0%,rgba(102,117,201,0) 62%),linear-gradient(150deg,#d9a35f 0%,#ab93ab 48%,#7b86c9 100%);color:#fff;transition:opacity .55s ease,visibility .55s ease}
+#splash.off{opacity:0;visibility:hidden;pointer-events:none}
+#splash .sp{text-align:center;animation:spIn .8s cubic-bezier(.2,.7,.2,1) both}
+#splash .sp img{width:124px;height:124px;display:block;margin:0 auto 20px;border-radius:28px;box-shadow:0 24px 60px rgba(20,20,50,.35)}
+#splash .sp b{display:block;font-size:30px;font-weight:800;letter-spacing:-.02em;text-shadow:0 1px 24px rgba(30,20,60,.25)}
+#splash .sp span{display:block;font-size:13px;letter-spacing:.14em;text-transform:uppercase;opacity:.85;margin-top:8px}
+@keyframes spIn{from{opacity:0;transform:translateY(14px) scale(.94)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){#splash .sp,#sheet.on #sb,details.box[open]>.accb{animation:none!important}#splash{transition:none!important}}
 </style>
 </head>
 <body>
+<div id="splash" aria-hidden="true"><div class="sp"><img src="icon-192.png" alt="" width="124" height="124"><b>¿A qué hora?</b></div></div>
+<script>setTimeout(function(){var s=document.getElementById("splash");if(s){s.classList.add("off");setTimeout(function(){s.parentNode&&s.parentNode.removeChild(s)},650)}},1600);</script>
 <main>
 <div id="v1">
 <div class="top"><b id="ttl">Horario</b><button id="gear">⚙ Ajustes</button></div>
@@ -119,21 +144,37 @@ input[type=color]{width:46px;height:46px;border:0;border-radius:12px;padding:0;b
 </div>
 <div id="v2" style="display:none">
 <div class="top"><button id="back">‹ Volver</button><b>Ajustes</b><span style="width:60px"></span></div>
-<div class="box"><h3>Perfil</h3><div id="pfs"></div></div>
-<div class="box"><h3>Apariencia</h3>
+<details class="box acc" open>
+<summary><h3>Perfil</h3></summary>
+<div class="accb"><div id="pfs"></div></div>
+</details>
+<details class="box acc">
+<summary><h3>Apariencia</h3></summary>
+<div class="accb">
 <div class="seg" id="th"><button data-th="custom">Personalizado</button><button data-th="light">Claro</button><button data-th="dark">Oscuro</button></div>
 <div id="cgw" style="display:none"><div class="cg" id="cg" style="margin-top:12px"></div><button class="sec" id="rc" style="margin-top:12px;width:100%">Restaurar colores</button></div>
 <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;font-size:12px"><span class="pl" style="background:var(--cM);color:var(--cMx)">Mañana</span><span class="pl" style="background:var(--cT);color:var(--cTx)">Tarde</span><span class="pl" style="background:var(--cV);color:var(--cVx)">Vacaciones</span><span class="pl" style="background:var(--cL);color:var(--cLx)">Libre</span><span class="pl" style="background:var(--fe);color:var(--cFx)">Festivo</span></div>
 </div>
-<div class="box"><h3>Turnos</h3><div class="fr" id="fr"></div><div class="fr" id="jh"></div>
+</details>
+<details class="box acc">
+<summary><h3>Turnos</h3></summary>
+<div class="accb">
+<div class="fr" id="fr"></div><div class="fr" id="jh"></div>
 <p style="font-size:12px;color:var(--mu);margin:6px 0 14px">Según la hora de entrada se elige Mañana o Tarde solo.</p><h3 style="margin-top:6px">Horarios con letra</h3><div id="lts"></div>
 </div>
-<div class="box"><h3>Copiar horario</h3>
+</details>
+<details class="box acc">
+<summary><h3>Copiar horario</h3></summary>
+<div class="accb">
 <p style="margin:0 0 8px;font-size:14px">Copia los turnos de una semana anterior a esta. Solo rellena los días vacíos: nunca borra ni sobrescribe nada.</p>
 <div class="fr">De la semana <select id="cws" aria-label="Semana de origen"><option value="1">pasada</option><option value="2">de hace 2</option><option value="3">de hace 3</option><option value="4">de hace 4</option></select> a esta <button class="ok" id="cwb" style="flex:none;padding:11px 16px">Copiar</button></div>
 <p id="cwm" role="status" aria-live="polite" style="font-size:13px;color:var(--mu);margin:8px 0 0"></p>
 </div>
-<div class="box"><h3>Datos</h3><p style="margin:0 0 10px;font-size:15px">Tus datos se guardan solo en este móvil. Haz una copia de seguridad de vez en cuando.</p><p style="margin:0 0 4px;font-size:13px;font-weight:600">Versión 0.22 beta · web</p>
+</details>
+<details class="box acc">
+<summary><h3>Datos</h3></summary>
+<div class="accb">
+<p style="margin:0 0 10px;font-size:15px">Tus datos se guardan solo en este móvil. Haz una copia de seguridad de vez en cuando.</p><p style="margin:0 0 4px;font-size:13px;font-weight:600">Versión 0.23 beta · web</p>
 <button class="sec" id="ice" style="width:100%;margin:0 0 4px">Exportar este mes al calendario (.ics)</button>
 <p id="icm" role="status" aria-live="polite" style="font-size:13px;color:var(--mu);margin:0 0 10px"></p>
 <details><summary style="color:var(--mu);font-size:14px">Copia de seguridad (recomendada)</summary>
@@ -142,7 +183,9 @@ input[type=color]{width:46px;height:46px;border:0;border-radius:12px;padding:0;b
 <div class="r2" style="margin:0 0 0"><button class="sec" id="rs">Restaurar</button><button class="sec" id="bfb">Desde archivo</button></div>
 <input type="file" id="bf" accept=".json,.txt,application/json,text/plain" style="display:none">
 <button class="sec" id="undo" style="display:none;width:100%;margin-top:8px">Deshacer la restauración</button>
-<p style="font-size:13px;color:var(--mu);margin:8px 0 0" id="msg" role="status" aria-live="polite"></p></details></div>
+<p style="font-size:13px;color:var(--mu);margin:8px 0 0" id="msg" role="status" aria-live="polite"></p></details>
+</div>
+</details>
 </div>
 </main>
 <div id="sheet" role="dialog" aria-modal="true" aria-labelledby="sbt"><div id="sb" tabindex="-1"></div></div>
@@ -207,7 +250,7 @@ function hm(id,v){var h=v?v.slice(0,2):"",m=v?v.slice(3,5):"00",o='<select id="'
  ms.forEach(function(p){o+='<option'+(p===m?" selected":"")+'>'+p+'</option>'});return o+'</select>'}
 function rd(id){var h=document.getElementById(id+"h"),m=document.getElementById(id+"m");return h&&h.value!==""?h.value+":"+m.value:""}
 function setup(){
- document.getElementById('pfs').innerHTML=pfh('pf')+'<div class="sub" id="pfage" style="margin-top:8px"></div>';pfb('pf');ageUpd();
+ document.getElementById('pfs').innerHTML=pfh('pf');pfb('pf');ageUpd();
  document.querySelectorAll('#th button').forEach(function(b){b.className=(cfg.theme==='custom'||cfg.theme==='dark'?cfg.theme:'light')===b.getAttribute('data-th')?'on':'';b.onclick=function(){var t=b.getAttribute('data-th');if(t==='custom'&&!cfg.col.bg){var p=palette();cfg.col={bg:p.bg,M:p.M,T:p.T,V:p.V,L:p.L,F:p.F}}cfg.theme=t;save();ap();setup();render()}});
  var g="";["bg","M","T","V","L","F"].forEach(function(n){g+='<div><input type="color" data-c="'+n+'" value="'+palette()[n]+'"><br>'+CN[n]+'</div>'});
  document.getElementById("cg").innerHTML=g;document.getElementById("cgw").style.display=cfg.theme==="custom"?"":"none";
@@ -251,7 +294,7 @@ var PF=[["n","Nombre","text"],["b","Fecha de nacimiento","date"],["o","De dónde
 function lab(f){var a=f[0]==="b"?edad(cfg.prof.b):"";return f[1]+(a!==""?" ("+a+" años)":"")}
 function pfh(pre){return PF.map(function(f){return'<label id="'+pre+f[0]+'l">'+lab(f)+'</label><input type="'+f[2]+'"'+(f[2]==="date"?' max="'+k(new Date())+'"':"")+' id="'+pre+f[0]+'" value="'+esc(cfg.prof[f[0]]||"")+'">'}).join("")}
 function edad(b){if(!b)return"";var p=b.split("-"),n=new Date(),a=n.getFullYear()-(+p[0]);if(n.getMonth()+1<+p[1]||(n.getMonth()+1===+p[1]&&n.getDate()<+p[2]))a--;return a>=0&&a<130?a:""}
-function ageUpd(){var a=edad(cfg.prof.b);["pf","ob"].forEach(function(pre){var l=document.getElementById(pre+"bl");if(l)l.textContent=lab(PF[1])});var e=document.getElementById("pfage");if(e)e.textContent=a!==""?"La edad se actualiza sola cada cumpleaños.":(cfg.prof.a?"Edad guardada: "+cfg.prof.a+". Pon tu fecha de nacimiento para que se actualice sola.":"")}
+function ageUpd(){["pf","ob"].forEach(function(pre){var l=document.getElementById(pre+"bl");if(l)l.textContent=lab(PF[1])})}
 function pfb(pre){PF.forEach(function(f){var el=document.getElementById(pre+f[0]);if(el)el.onchange=function(){cfg.prof[f[0]]=el.value.trim();save();greet();ageUpd()}})}
 function greet(){var e=document.getElementById("ttl");if(e)e.textContent=cfg.prof.n?"Hola, "+cfg.prof.n.split(" ")[0]:"Horario"}
 function onb(){var o=document.getElementById("onb");if(!o)return;if(cfg.prof.done){o.style.display="none";return}
@@ -434,6 +477,10 @@ ap();setup();backfill();render();onb();var lastDay=k(new Date());function chk(){
 setInterval(chk,60000);document.addEventListener("visibilitychange",function(){if(!document.hidden)chk()});window.addEventListener("pageshow",chk);
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
 try{if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js")}catch(e){}
+var splash=document.getElementById("splash"),spDone=false;
+function quitarSplash(){if(spDone||!splash)return;spDone=true;splash.classList.add("off");setTimeout(function(){if(splash&&splash.parentNode)splash.parentNode.removeChild(splash);splash=null},650)}
+setTimeout(quitarSplash,1250);
+window.addEventListener("load",function(){setTimeout(quitarSplash,650)});
 </script>
 </body>
 </html>
