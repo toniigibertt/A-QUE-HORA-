@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="¿A qué hora?">
+<title>¿A qué hora?</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{--bg:#f6f6f4;--card:#fff;--tx:#15171c;--mu:#8b919b;--bd:#ececea;--fe:#e5484d;--ac:#15171c;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d0f13;--card:#171a20;--tx:#f0f1f4;--mu:#8b919b;--bd:#242830;--ac:#f0f1f4}}
+:root[data-theme="dark"]{--bg:#0d0f13;--card:#171a20;--tx:#f0f1f4;--mu:#8b919b;--bd:#242830;--ac:#f0f1f4}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,system-ui,"Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent}
+main{max-width:480px;margin:0 auto;padding:16px 16px 40px}
+button{font:inherit;color:inherit;background:none;border:0;padding:0}
+.seg{display:flex;background:var(--card);border-radius:12px;padding:3px;margin-bottom:12px}
+.seg button{flex:1;padding:8px;border-radius:9px;color:var(--mu);font-weight:600}
+.seg .on{background:var(--ac);color:var(--bg)}
+.hero{border-radius:28px;padding:24px;color:#fff;margin-bottom:14px;min-height:190px;cursor:pointer}
+.hero.M{background:linear-gradient(140deg,var(--cM),var(--cMd))}
+.hero.T{background:linear-gradient(140deg,var(--cT),var(--cTd))}
+.hero.V{background:linear-gradient(140deg,var(--cV),var(--cVd))}
+.hero.L,.hero.N{background:var(--card);color:var(--tx)}
+.hero.M{color:var(--cMx)}.hero.T{color:var(--cTx)}.hero.V{color:var(--cVx)}.hero.M .tag{background:var(--cMg)}.hero.T .tag{background:var(--cTg)}.hero.V .tag{background:var(--cVg)}
+.lab{font-size:13px;opacity:.85;text-transform:uppercase;letter-spacing:.06em}
+.big{font-size:56px;font-weight:700;line-height:1.05;margin:10px 0 6px;letter-spacing:-.02em}
+.big span{font-size:26px;font-weight:500;opacity:.8}
+.big.s{font-size:34px}
+.pill{display:inline-block;background:var(--fe);color:var(--cFx);font-size:13px;font-weight:600;border-radius:99px;padding:4px 10px;margin-top:10px}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{background:rgba(255,255,255,.22);border-radius:99px;padding:4px 11px;font-size:14px}
+.hero.L .tag,.hero.N .tag{background:var(--bg)}
+.sm{font-size:15px;opacity:.8;margin-top:6px}
+.week{display:flex;gap:6px;margin-bottom:18px}
+.w{flex:1;background:var(--card);border-radius:14px;padding:8px 0;text-align:center;font-size:11px;color:var(--mu);cursor:pointer;border-bottom:4px solid transparent}
+.w b{display:block;font-size:16px;color:var(--tx);margin:2px 0}
+.w.M{border-color:var(--cM)}.w.T{border-color:var(--cT)}.w.V{border-color:var(--cV)}.w.L{border-color:var(--cL)}
+.w.f b{color:var(--fe)}
+.cal{background:var(--card);border-radius:24px;padding:14px;margin-bottom:14px}
+.hd{display:flex;align-items:center;justify-content:space-between;padding:0 4px 8px}
+.hd b{font-size:17px}.hd button{font-size:22px;padding:2px 12px;color:var(--mu)}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--bd);border-left:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.dh{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.dn{font-size:11px;color:var(--mu);text-align:center;padding:4px 0}
+.d{position:relative;height:84px;min-width:0;overflow:hidden;border-right:1px solid var(--bd);border-bottom:1px solid var(--bd);padding:4px 2px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:14px;cursor:pointer}
+.d .n{width:24px;height:24px;line-height:24px;text-align:center;border-radius:50%;font-weight:600}
+.d.f .n{color:var(--fe);font-weight:700}
+.d.f::after{content:"";position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--fe)}
+.d.hoy .n{background:var(--ac);color:var(--bg)}
+.d.f.hoy .n{background:var(--fe);color:var(--cFx)}
+.d.e{cursor:default;background:var(--bdt)}
+.pl{font-size:10px;font-weight:700;color:#fff;border-radius:6px;padding:1px 5px;line-height:1.35}
+.d.M .pl{background:var(--cM);color:var(--cMx)}.d.T .pl{background:var(--cT);color:var(--cTx)}.d.V .pl{background:var(--cV);color:var(--cVx)}.d.L .pl{background:var(--cL);color:var(--cLx)}
+.d.M{background:var(--cMt)}.d.T{background:var(--cTt)}.d.V{background:var(--cVt)}
+.pl.lz{font-size:13px;padding:1px 9px}
+.lt{display:flex;align-items:center;gap:4px;margin:6px 0;flex-wrap:wrap}.lt input[type=text]{width:48px;flex:none;font-size:18px;text-align:center;font-weight:700;padding:8px 4px}.lt select{width:auto;font-size:16px;padding:6px 4px;min-width:44px;-webkit-appearance:none;appearance:none;text-align:center}.lt button{color:var(--mu);font-size:18px;padding:4px 8px}
+@media(max-width:350px){.seg button{font-size:13px;padding:8px 2px}.lt select{padding:6px 0}.lt input[type=text]{width:40px}.lt button{padding:4px 4px}.lt{gap:2px}}
+.bar{height:6px;border-radius:99px;background:var(--bd);margin:8px 0 4px}.bar i{display:block;height:100%;border-radius:99px;background:var(--ac)}
+.hh{display:flex;gap:18px}.hh>div{flex:1}.hh .sub{font-size:13px}.hv{font-size:24px;font-weight:700;letter-spacing:-.02em;margin:2px 0}
+#onb{position:fixed;inset:0;background:var(--bg);z-index:20;overflow-y:auto;display:none;padding:calc(28px + env(safe-area-inset-top,0px)) 20px 40px}.ob{max-width:480px;margin:0 auto}
+.tm{font-size:9px;color:var(--mu);line-height:1;white-space:nowrap}.pl{white-space:nowrap}
+.ex{font-size:9px;font-weight:700;color:var(--ac);border:1px solid var(--ac);border-radius:6px;padding:0 4px;line-height:1.4}
+.cal,.box,.w,.seg,.hero.L,.hero.N{border:1px solid var(--bd);box-shadow:0 1px 2px rgba(0,0,0,.05)}
+#sb .tag{background:var(--bg)}
+.st{display:flex;align-items:center;justify-content:center;gap:18px;font-size:22px;margin:6px 0}.st button{width:48px;height:48px;border-radius:50%;border:1.5px solid var(--bd);font-size:24px}
+.leg{display:flex;gap:14px;font-size:12px;color:var(--mu);padding:10px 4px 0;flex-wrap:wrap}
+.leg i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}
+.box{background:var(--card);border-radius:20px;padding:16px;margin-bottom:12px}
+.box h3{margin:0 0 8px;font-size:13px;color:var(--mu);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.chip{display:inline-block;border:1.5px solid var(--bd);border-radius:99px;padding:6px 13px;margin:0 6px 6px 0;font-size:15px}
+.chip.on{border-color:var(--ac);background:var(--ac);color:var(--bg)}
+.chip.add{color:var(--mu);border-style:dashed}
+#sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:9}
+#sheet.on{display:flex}
+#sb{background:var(--card);width:100%;max-width:480px;max-height:92%;overflow-y:auto;border-radius:24px 24px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom,0px))}
+.r2{display:flex;gap:10px;margin:8px 0 12px}.r2>div{flex:1}
+label{font-size:12px;color:var(--mu);display:block;margin:10px 0 4px;text-transform:uppercase;letter-spacing:.05em}
+input[type=time],input[type=text],input[type=number],input[type=date],textarea{width:100%;font:inherit;font-size:18px;color:var(--tx);background:var(--bg);border:1px solid var(--bd);text-align:left;border-radius:12px;padding:11px}
+input[type=date]{-webkit-appearance:none;appearance:none;display:block;min-height:46px;text-align:left}
+input[type=date]::-webkit-date-and-time-value{text-align:left}
+textarea{font-size:16px;height:70px}
+select{font:inherit;font-size:22px;font-weight:600;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:12px;padding:10px 6px;width:46%;text-align:center;text-align-last:center}
+.tp{display:flex;align-items:center;gap:6px;font-size:22px;font-weight:700}
+input[type=color]{width:46px;height:46px;border:0;border-radius:12px;padding:0;background:none}
+.cg{display:flex;gap:10px;flex-wrap:wrap}.cg div{text-align:center;font-size:12px;color:var(--mu)}
+.fr{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px;margin-top:6px}.fr select{width:auto;font-size:16px;padding:6px 8px}
+.ok{background:var(--ac);color:var(--bg);border-radius:14px;padding:13px;font-weight:700;flex:2}
+.sec{border:1.5px solid var(--bd);border-radius:14px;padding:13px;flex:1}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.top b{font-size:24px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.top button{font-size:15px;color:var(--mu);font-weight:600;white-space:nowrap}
+.fe{color:var(--fe);font-size:14px;font-weight:600;margin-top:2px}
+.warn{color:var(--fe);font-size:14px}
+</style>
+</head>
+<body>
+<main>
+<div id="v1">
+<div class="top"><b id="ttl">Horario</b><button id="gear">⚙ Ajustes</button></div>
+<div class="seg" id="seg"><button data-m="hoy">Hoy</button><button data-m="man">Mañana</button></div>
+<div id="hero"></div>
+<div class="week" id="week"></div>
+<div class="box" id="hrs"></div>
+<div class="box" id="fst"></div>
+<div class="cal">
+<div class="hd"><button id="prev">‹</button><b id="mes"></b><button id="next">›</button></div>
+<div id="exm" style="text-align:center;font-size:13px;color:var(--mu);margin:-4px 0 8px"></div>
+<div id="cal"></div>
+<div class="leg"><span><i style="background:var(--cM)"></i>Mañana</span><span><i style="background:var(--cT)"></i>Tarde</span><span><i style="background:var(--cV)"></i>Vacaciones</span><span><i style="background:var(--cL)"></i>Libre</span><span><i style="background:var(--fe)"></i>Festivo</span></div>
+</div>
+</div>
+<div id="v2" style="display:none">
+<div class="top"><button id="back">‹ Volver</button><b>Ajustes</b><span style="width:60px"></span></div>
+<div class="box"><h3>Perfil</h3><div id="pfs"></div></div>
+<div class="box"><h3>Apariencia</h3>
+<div class="seg" id="th"><button data-th="custom">Personalizado</button><button data-th="light">Claro</button><button data-th="dark">Oscuro</button></div>
+<div id="cgw" style="display:none"><div class="cg" id="cg" style="margin-top:12px"></div><button class="sec" id="rc" style="margin-top:12px;width:100%">Restaurar colores</button></div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;font-size:12px"><span class="pl" style="background:var(--cM);color:var(--cMx)">Mañana</span><span class="pl" style="background:var(--cT);color:var(--cTx)">Tarde</span><span class="pl" style="background:var(--cV);color:var(--cVx)">Vacaciones</span><span class="pl" style="background:var(--cL);color:var(--cLx)">Libre</span><span class="pl" style="background:var(--fe);color:var(--cFx)">Festivo</span></div>
+</div>
+<div class="box"><h3>Turnos</h3><div class="fr" id="fr"></div><div class="fr" id="jh"></div>
+<p style="font-size:12px;color:var(--mu);margin:6px 0 14px">Según la hora de entrada se elige Mañana o Tarde solo.</p><h3 style="margin-top:6px">Horarios con letra</h3><div id="lts"></div>
+</div>
+<div class="box"><h3>Datos</h3><p id="sync" style="margin:0 0 10px;font-size:15px">Comprobando…</p><p style="margin:0 0 4px;font-size:13px;font-weight:600">Versión 0.20 beta · web</p><p id="diag" style="margin:0 0 10px;font-size:12px;color:var(--mu)"></p>
+<details><summary style="color:var(--mu);font-size:14px">Copia de seguridad (recomendada)</summary>
+<textarea id="bk" style="margin-top:10px"></textarea>
+<div class="r2" style="margin:8px 0 0"><button class="sec" id="cp">Copiar</button><button class="sec" id="sh">Compartir</button></div>
+<div class="r2" style="margin:0 0 0"><button class="sec" id="rs">Restaurar</button><button class="sec" id="bfb">Desde archivo</button></div>
+<input type="file" id="bf" accept=".json,.txt,application/json,text/plain" style="display:none">
+<button class="sec" id="undo" style="display:none;width:100%;margin-top:8px">Deshacer la restauración</button>
+<p style="font-size:13px;color:var(--mu);margin:8px 0 0" id="msg"></p></details></div>
+</div>
+</main>
+<div id="sheet"><div id="sb"></div></div>
+<div id="onb"></div>
+<script>
+var KEY="horario_v1",CK="horario_cfg",data={},cfg={p:[],l:[],col:{},fr:{a:6,b:14,c:22}},cur=new Date(),rt=null,REF=null,DBOK=false,modo="hoy";
+cur.setDate(1);
+try{data=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){data={}}
+try{var c=JSON.parse(localStorage.getItem(CK)||"null");if(c&&c.p&&c.l){cfg=c;cfg.col=cfg.col||{};cfg.fr=cfg.fr||{a:6,b:14,c:22}}}catch(e){}
+cfg=norm(cfg);
+function setSync(t){var e=document.getElementById("sync");if(e)e.textContent=t}
+function lsave(){try{localStorage.setItem(KEY,JSON.stringify(data));localStorage.setItem(CK,JSON.stringify(cfg))}catch(e){}}
+function save(){lsave();rsave()}
+function rsave(){if(!DBOK||!REF)return;clearTimeout(rt);setSync("Guardando…");rt=setTimeout(function(){REF.set(JSON.parse(JSON.stringify({data:data,cfg:cfg,t:Date.now()}))).then(function(){setSync("Guardado en tu cuenta. Se mantiene aunque cierres la app.")}).catch(function(){setSync("No se pudo guardar en la cuenta; los datos están solo en este móvil.")})},500)}
+function norm(c){c=c||{};c.p=c.p||[];c.l=c.l||[];c.col=c.col||{};c.fr=c.fr||{a:6,b:14,c:22};c.lt=c.lt||DEFLT();c.prof=c.prof||{};return c}
+async function initDb(){
+ try{
+  if(!window.claude||!window.claude.use){setSync("Tus datos se guardan solo en este móvil. Haz una copia de seguridad de vez en cuando.");return}
+  var u=await claude.use("user"),db=await claude.use("db");
+  if(!u||!db){setSync("Sin conexión con tu cuenta: los datos se guardan solo en este móvil.");return}
+  var id=await u.id();if(!id){setSync("Sin conexión con tu cuenta: los datos se guardan solo en este móvil.");return}
+  REF=db.collection("data/users/"+id).doc("state");
+  var sn=await REF.get();DBOK=true;
+  if(sn.exists){var v=JSON.parse(JSON.stringify(sn.data()||{}));data=v.data||{};cfg=norm(v.cfg);backfill();lsave();ap();setup();render();setSync("Sincronizado con tu cuenta. Se mantiene aunque cierres la app.")}
+  else{rsave()}
+ }catch(e){DBOK=false;setSync("No se pudo conectar con tu cuenta; los datos se guardan solo en este móvil.")}finally{onb()}
+}
+function vista(n){document.getElementById("v1").style.display=n===1?"":"none";document.getElementById("v2").style.display=n===2?"":"none";if(n===1)render();window.scrollTo(0,0)}
+var FEST={"2026-01-01":"Año Nuevo","2026-01-06":"Reyes","2026-04-03":"Viernes Santo","2026-04-06":"Lunes de Pascua","2026-05-01":"Fiesta del Trabajo","2026-05-25":"Lunes de Pascua Granada","2026-08-15":"La Asunción","2026-09-11":"Diada de Catalunya","2026-09-24":"La Mercè","2026-10-12":"Fiesta Nacional de España","2026-06-24":"Sant Joan","2026-11-01":"Todos los Santos (domingo)","2026-12-06":"Día de la Constitución (domingo)","2026-12-08":"Inmaculada Concepción","2026-12-25":"Navidad","2026-12-26":"Sant Esteve","2027-01-01":"Año Nuevo","2027-01-06":"Reyes","2027-03-26":"Viernes Santo","2027-03-29":"Lunes de Pascua","2027-05-01":"Fiesta del Trabajo","2027-05-17":"Lunes de Pascua Granada (por confirmar)","2027-06-24":"Sant Joan","2027-08-15":"La Asunción (domingo)","2027-09-11":"Diada de Catalunya","2027-09-24":"La Mercè (por confirmar)","2027-10-12":"Fiesta Nacional de España","2027-11-01":"Todos los Santos","2027-12-06":"Día de la Constitución","2027-12-08":"Inmaculada Concepción","2027-12-25":"Navidad","2027-12-26":"Sant Esteve (domingo)"};
+var T={M:"Mañana",T:"Tarde",L:"Libre",V:"Vacaciones"};
+var DIAS=["lunes","martes","miércoles","jueves","viernes","sábado","domingo"];
+var MESES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+function k(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function dname(d){return DIAS[(d.getDay()+6)%7]}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+var CN={bg:"Fondo",M:"Mañana",T:"Tarde",V:"Vacac.",L:"Libre",F:"Festivo"};
+function lum(h){var r=parseInt(h.substr(1,2),16),g=parseInt(h.substr(3,2),16),b=parseInt(h.substr(5,2),16);return(0.299*r+0.587*g+0.114*b)/255}
+function mix(a,b,t){var o="#";for(var i=0;i<3;i++){var v=Math.round(parseInt(a.substr(1+2*i,2),16)*t+parseInt(b.substr(1+2*i,2),16)*(1-t));o+=("0"+v.toString(16)).slice(-2)}return o}
+var PAL={
+ L:{bg:"#ffffff",card:"#ffffff",bd:"#e3e5ea",tx:"#15171c",M:"#f59e0b",T:"#4f6df5",V:"#14b8a6",L:"#94a3b8",F:"#e5484d"},
+ D:{bg:"#0b0d11",card:"#171a21",bd:"#2a2f3a",tx:"#f0f1f4",M:"#f2a33a",T:"#7b8cff",V:"#2dd4bf",L:"#6b7280",F:"#ff6b6b"},
+ AL:{bg:"#f2f2f7",card:"#ffffff",bd:"#dcdce2",tx:"#15171c",M:"#f59e0b",T:"#4f6df5",V:"#14b8a6",L:"#94a3b8",F:"#e5484d"},
+ AD:{bg:"#000000",card:"#1c1c1e",bd:"#2c2c2e",tx:"#f0f1f4",M:"#f2a33a",T:"#7b8cff",V:"#2dd4bf",L:"#6b7280",F:"#ff6b6b"}};
+function palette(){
+ var t=cfg.theme;
+ if(t==="dark")return PAL.D;
+ if(t==="custom"){var c=cfg.col,bg=c.bg||PAL.L.bg,dk=lum(bg)<.45,b=dk?PAL.D:PAL.L,p={bg:bg,card:dk?mix("#ffffff",bg,.08):mix(bg,"#ffffff",.3),bd:dk?mix("#ffffff",bg,.16):mix("#000000",bg,.14),tx:b.tx};
+  ["M","T","V","L","F"].forEach(function(k){p[k]=c[k]||b[k]});return p}
+ return PAL.L}
+function lm(h){function c(i){var v=parseInt(h.substr(1+2*i,2),16)/255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)}return .2126*c(0)+.7152*c(1)+.0722*c(2)}
+function tx(h){return 1.05/(lm(h)+.05)>=3.5?"#ffffff":"#15171c"}
+function ap(){
+ var p=palette(),v={"--bg":p.bg,"--card":p.card,"--bd":p.bd,"--bdt":mix(p.bd,p.card,.4),"--tx":p.tx,"--ac":p.tx,"--mu":"#8b919b","--fe":p.F,"--cFx":tx(p.F)};
+ ["M","T","V","L"].forEach(function(t){v["--c"+t]=p[t];var lt=tx(p[t])==="#ffffff";v["--c"+t+"x"]=lt?"#ffffff":"#15171c";v["--c"+t+"g"]=lt?"rgba(255,255,255,.22)":"rgba(0,0,0,.12)";v["--c"+t+"d"]=lt?mix(p[t],"#000000",.62):mix(p[t],"#ffffff",.7);v["--c"+t+"t"]=mix(p[t],p.card,.16)});
+ var css=":root{";for(var k in v)css+=k+":"+v[k]+" !important;";css+="}html,body{background:"+p.bg+" !important;color:"+p.tx+"}";
+ var st=document.getElementById("dyn");if(!st){st=document.createElement("style");st.id="dyn";document.head.appendChild(st)}st.textContent=css;
+ var ds=document.documentElement.style;for(var kk in v)ds.setProperty(kk,v[kk],"important");ds.setProperty("background",p.bg,"important");if(document.body)document.body.style.setProperty("background",p.bg,"important");
+ setTimeout(diag,60)}
+function diag(){var e=document.getElementById("diag");if(!e)return;e.textContent="Tema: "+({custom:"Personalizado",dark:"Oscuro"}[cfg.theme]||"Claro")+" · fondo pedido "+palette().bg+" · fondo visible "+getComputedStyle(document.body).backgroundColor}
+function autoT(st){if(!st.s)return;var h=+st.s.slice(0,2)+(+st.s.slice(3,5))/60,f=cfg.fr;if(h>=f.b)st.t="T";else if(h>=f.a)st.t="M"}
+function hm(id,v){var h=v?v.slice(0,2):"",m=v?v.slice(3,5):"00",o='<select id="'+id+'h"><option value="">--</option>';
+ for(var i=0;i<24;i++){var p=String(i).padStart(2,"0");o+='<option'+(p===h?" selected":"")+'>'+p+'</option>'}
+ o+='</select><b>:</b><select id="'+id+'m">';var ms=[];for(var j=0;j<60;j++)ms.push(String(j).padStart(2,"0"));if(ms.indexOf(m)<0)ms.push(m);ms.sort();
+ ms.forEach(function(p){o+='<option'+(p===m?" selected":"")+'>'+p+'</option>'});return o+'</select>'}
+function rd(id){var h=document.getElementById(id+"h"),m=document.getElementById(id+"m");return h&&h.value!==""?h.value+":"+m.value:""}
+function setup(){
+ document.getElementById('pfs').innerHTML=pfh('pf')+'<div class="sub" id="pfage" style="margin-top:8px"></div>';pfb('pf');ageUpd();
+ document.querySelectorAll('#th button').forEach(function(b){b.className=(cfg.theme==='custom'||cfg.theme==='dark'?cfg.theme:'light')===b.getAttribute('data-th')?'on':'';b.onclick=function(){var t=b.getAttribute('data-th');if(t==='custom'&&!cfg.col.bg){var p=palette();cfg.col={bg:p.bg,M:p.M,T:p.T,V:p.V,L:p.L,F:p.F}}cfg.theme=t;save();ap();setup();render()}});
+ var g="";["bg","M","T","V","L","F"].forEach(function(n){g+='<div><input type="color" data-c="'+n+'" value="'+palette()[n]+'"><br>'+CN[n]+'</div>'});
+ document.getElementById("cg").innerHTML=g;document.getElementById("cgw").style.display=cfg.theme==="custom"?"":"none";
+ document.querySelectorAll("[data-c]").forEach(function(i){i.oninput=function(){cfg.col[i.getAttribute("data-c")]=i.value;ap()};i.onchange=function(){cfg.col[i.getAttribute("data-c")]=i.value;ap();save();render()}});
+ function hs(k,v){var o='<select data-f="'+k+'">';for(var i=0;i<=24;i++)o+='<option'+(i===v?" selected":"")+' value="'+i+'">'+String(i).padStart(2,"0")+':00</option>';return o+'</select>'}
+ document.getElementById("fr").innerHTML='Mañana desde '+hs("a",cfg.fr.a)+' · Tarde desde '+hs("b",cfg.fr.b)+'';
+ document.querySelectorAll("[data-f]").forEach(function(i){i.onchange=function(){cfg.fr[i.getAttribute("data-f")]=+i.value;save()}});
+ var jo='Jornada habitual <select data-j>';for(var q=1;q<=12;q++)jo+='<option'+(q===(cfg.jh||8)?" selected":"")+'>'+q+'</option>';
+ document.getElementById("jh").innerHTML=jo+'</select> horas al día';
+ document.querySelector("[data-j]").onchange=function(){cfg.jh=+this.value;save();render()};
+ var L="";cfg.lt.forEach(function(q,i){L+='<div class="lt"><input type="text" maxlength="2" value="'+esc(q.c)+'" data-lc="'+i+'">'+hm("ls"+i,q.s)+'<b>–</b>'+hm("le"+i,q.e)+'<button data-ld="'+i+'">✕</button></div>'});
+ document.getElementById("lts").innerHTML=L+'<div class="lt" id="lnew" style="display:none"><input type="text" id="nl" maxlength="2" placeholder="Letra"><button class="sec" id="nlok" style="flex:none;padding:10px 14px">Añadir</button><span class="sub" style="font-size:13px">Luego ajusta sus horas</span></div><button class="sec" id="la" style="width:100%;margin-top:8px">+ Añadir horario</button>';
+ document.querySelectorAll("[data-lc]").forEach(function(i){i.onchange=function(){cfg.lt[+i.getAttribute("data-lc")].c=i.value.trim().toUpperCase();save();render()}});
+ cfg.lt.forEach(function(q,i){["s","e"].forEach(function(w){["h","m"].forEach(function(u){var el=document.getElementById("l"+w+i+u);if(el)el.onchange=function(){var v=rd("l"+w+i);if(v){q[w]=v;save()}}})})});
+ document.querySelectorAll("[data-ld]").forEach(function(b){b.onclick=function(){if(b.getAttribute("data-arm")){cfg.lt.splice(+b.getAttribute("data-ld"),1);save();setup();return}b.setAttribute("data-arm","1");b.textContent="¿Quitar?";b.style.color="var(--fe)";setTimeout(function(){b.removeAttribute("data-arm");b.textContent="✕";b.style.color=""},3000)}});
+ document.getElementById("la").onclick=function(){document.getElementById("lnew").style.display="flex";document.getElementById("nl").focus()};
+ document.getElementById("nlok").onclick=function(){var v=document.getElementById("nl").value.trim().toUpperCase().slice(0,2);if(!v)return;cfg.lt.push({c:v,s:"09:00",e:"17:00"});save();setup()};
+}
+function DEFLT(){return[{c:"A",s:"06:00",e:"14:00"},{c:"B",s:"14:00",e:"22:00"},{c:"C",s:"08:00",e:"16:00"},{c:"D",s:"10:00",e:"18:00"},{c:"F",s:"09:00",e:"17:00"}]}
+function mt(s,e){for(var i=0;i<cfg.lt.length;i++)if(cfg.lt[i].s===s&&cfg.lt[i].e===e)return cfg.lt[i].c;return""}
+function tm(t){return +t.slice(0,2)*60+(+t.slice(3,5))}
+function dur(y){if(!y||(y.t!=="M"&&y.t!=="T")||!y.s)return 0;if(!y.e)return cfg.jh||8;var a=tm(y.s),b=tm(y.e);if(b<=a)b+=1440;return(b-a)/60}
+function rango(a,b){var n=new Date(),t0=new Date(n.getFullYear(),n.getMonth(),n.getDate()),nm=n.getHours()*60+n.getMinutes(),pl=0,dn=0,ex=0;
+ for(var d=new Date(a);d<=b;d.setDate(d.getDate()+1)){var y=data[k(d)];if(!y)continue;var t=dur(y)+(y.x||0);if(!t)continue;pl+=t;var fin=false;
+  if(d<t0)fin=true;else if(+d===+t0&&y.s&&y.e&&tm(y.e)>tm(y.s)&&nm>=tm(y.e))fin=true;
+  if(fin){dn+=t;ex+=(y.x||0)}}
+ return{pl:pl,dn:dn,ex:ex}}
+function hrs(){var el=document.getElementById("hrs");if(!el)return;var n=new Date(),wd=(n.getDay()+6)%7,a=new Date(n.getFullYear(),n.getMonth(),n.getDate()-wd),b=new Date(n.getFullYear(),n.getMonth(),n.getDate()-wd+6),m1=new Date(n.getFullYear(),n.getMonth(),1),m2=new Date(n.getFullYear(),n.getMonth()+1,0);
+ function col(t,r){var p=r.pl?Math.min(100,r.dn/r.pl*100):0;return'<div><div class="lab">'+t+'</div><div class="hv">'+fc(r.dn)+'</div><div class="sub">de '+fc(r.pl)+' previstas</div><div class="bar"><i style="width:'+p+'%"></i></div>'+(r.ex?'<div class="sub">Incluye '+fc(r.ex)+' extra</div>':"")+'</div>'}
+ el.innerHTML='<div class="hh">'+col("Esta semana",rango(a,b))+col("Este mes",rango(m1,m2))+'</div>'}
+function fest(){var el=document.getElementById("fst");if(!el)return;var n=new Date(),y=n.getFullYear(),m=n.getMonth();
+ function cnt(a,b){var tot=0,w=0,h=0;for(var d=new Date(a);d<=b;d.setDate(d.getDate()+1)){var key=k(d);if(!FEST[key]||d.getDay()===0)continue;tot++;var e=data[key];if(e&&(e.t==="M"||e.t==="T")){w++;h+=dur(e)+(e.x||0)}}return{tot:tot,w:w,h:h}}
+ var hay=Object.keys(FEST).some(function(x){return x.indexOf(y+"-")===0});
+ function col(t,r){return'<div><div class="lab">'+t+'</div><div class="hv">'+r.w+' de '+r.tot+'</div><div class="sub">festivos trabajados</div>'+(r.w?'<div class="sub">'+fc(r.h)+' en festivo</div>':"")+'</div>'}
+ el.innerHTML='<div class="hh">'+col("Festivos este mes",cnt(new Date(y,m,1),new Date(y,m+1,0)))+col("Festivos este año",cnt(new Date(y,0,1),new Date(y,11,31)))+'</div>'+(hay?"":'<div class="sub" style="margin-top:8px">Los festivos de '+y+' aún no están cargados.</div>')}
+var PF=[["n","Nombre","text"],["b","Fecha de nacimiento","date"],["o","De dónde eres","text"],["w","Dónde trabajas","text"],["j","De qué trabajas","text"]];
+function lab(f){var a=f[0]==="b"?edad(cfg.prof.b):"";return f[1]+(a!==""?" ("+a+" años)":"")}
+function pfh(pre){return PF.map(function(f){return'<label id="'+pre+f[0]+'l">'+lab(f)+'</label><input type="'+f[2]+'"'+(f[2]==="date"?' max="'+k(new Date())+'"':"")+' id="'+pre+f[0]+'" value="'+esc(cfg.prof[f[0]]||"")+'">'}).join("")}
+function edad(b){if(!b)return"";var p=b.split("-"),n=new Date(),a=n.getFullYear()-(+p[0]);if(n.getMonth()+1<+p[1]||(n.getMonth()+1===+p[1]&&n.getDate()<+p[2]))a--;return a>=0&&a<130?a:""}
+function ageUpd(){var a=edad(cfg.prof.b);["pf","ob"].forEach(function(pre){var l=document.getElementById(pre+"bl");if(l)l.textContent=lab(PF[1])});var e=document.getElementById("pfage");if(e)e.textContent=a!==""?"La edad se actualiza sola cada cumpleaños.":(cfg.prof.a?"Edad guardada: "+cfg.prof.a+". Pon tu fecha de nacimiento para que se actualice sola.":"")}
+function pfb(pre){PF.forEach(function(f){var el=document.getElementById(pre+f[0]);if(el)el.onchange=function(){cfg.prof[f[0]]=el.value.trim();save();greet();ageUpd()}})}
+function greet(){var e=document.getElementById("ttl");if(e)e.textContent=cfg.prof.n?"Hola, "+cfg.prof.n.split(" ")[0]:"Horario"}
+function onb(){var o=document.getElementById("onb");if(!o)return;if(cfg.prof.done){o.style.display="none";return}
+ o.innerHTML='<div class="ob"><div style="font-size:32px;font-weight:700;margin-bottom:6px">Bienvenido</div><p class="sub" style="font-size:16px;margin:0 0 6px">Cuéntame un poco sobre ti. Solo se guarda en este móvil y lo puedes cambiar cuando quieras en Ajustes &gt; Perfil.</p>'+pfh("ob")+'<div class="r2" style="margin-top:22px"><button class="sec" id="obs">Ahora no</button><button class="ok" id="obk">Guardar y empezar</button></div><details style="margin-top:26px"><summary class="sub" style="font-size:15px">Ya usaba la app: restaurar mi copia</summary><textarea id="obbk" placeholder="Pega aquí tu copia de seguridad" style="margin-top:10px"></textarea><button class="sec" id="obrs" style="width:100%;margin-top:8px">Restaurar copia</button><p class="sub" id="obmsg" style="margin:8px 0 0"></p></details></div>';
+ o.style.display="block";pfb("ob");
+ function fin(g){if(g)PF.forEach(function(f){var el=document.getElementById("ob"+f[0]);if(el)cfg.prof[f[0]]=el.value.trim()});cfg.prof.done=true;save();o.style.display="none";setup();render()}
+ document.getElementById("obrs").onclick=function(){var m=document.getElementById("obmsg"),r;try{r=parseBackup(document.getElementById("obbk").value)}catch(e){m.textContent="No es una copia válida. Copia el texto completo, desde la primera { hasta la última }.";return}applyBackup(r);cfg.prof.done=true;save();o.style.display="none";setup();render();greet()};
+ document.getElementById("obk").onclick=function(){fin(true)};document.getElementById("obs").onclick=function(){fin(false)}}
+function mkBackup(){return JSON.stringify({app:"a-que-hora",v:1,d:data,c:cfg})}
+function cleanDay(y){var o={t:y.t},t=function(v){return typeof v==="string"&&/^\d{2}:\d{2}$/.test(v)?v:""},sx=function(v){return typeof v==="string"?v.slice(0,200):""};
+ o.s=t(y.s);o.e=t(y.e);o.c=sx(y.c).slice(0,2);o.n=sx(y.n);o.p=sx(y.p);o.l=sx(y.l);var x=+y.x;o.x=x>0&&x<=12?x:0;return o}
+function parseBackup(txt){var t=String(txt||"").replace(/[\u00A0\u200B\uFEFF]/g," ").trim(),a=t.indexOf("{"),b=t.lastIndexOf("}");if(a<0||b<=a)throw new Error("forma");t=t.slice(a,b+1);
+ var v;try{v=JSON.parse(t)}catch(e){v=JSON.parse(t.replace(/[\u201C\u201D\u201E\u201F]/g,'"'))}
+ if(!v||typeof v!=="object"||Array.isArray(v))throw new Error("forma");
+ var d=v.d&&typeof v.d==="object"?v.d:v,c=v.d&&v.c&&typeof v.c==="object"?v.c:null,out={},n=0;
+ Object.keys(d).forEach(function(k2){var y=d[k2];if(/^\d{4}-\d{2}-\d{2}$/.test(k2)&&y&&typeof y==="object"&&(y.t==="M"||y.t==="T"||y.t==="L"||y.t==="V")){out[k2]=cleanDay(y);n++}});
+ if(!n)throw new Error("vacía");return{d:out,c:c,n:n}}
+function applyBackup(r){try{localStorage.setItem("horario_prev",JSON.stringify({d:data,c:cfg}))}catch(e){}
+ data=r.d;if(r.c){cfg=norm(r.c);cfg.prof=cfg.prof||{}}save();ap();setup();backfill();render();greet()}
+function copyTxt(t){var ta=document.getElementById("bk"),fb=function(){ta.value=t;ta.focus();ta.select();try{ta.setSelectionRange(0,t.length)}catch(e){}var r=false;try{r=document.execCommand("copy")}catch(e){}return r};
+ if(navigator.clipboard&&navigator.clipboard.writeText){return navigator.clipboard.writeText(t).then(function(){return true},function(){return fb()})}return Promise.resolve(fb())}
+function backfill(){var ch=false;Object.keys(data).forEach(function(k2){var y=data[k2];if(y&&(y.t==="M"||y.t==="T")&&y.s&&y.e&&!y.c){var c=mt(y.s,y.e);if(c){y.c=c;ch=true}}});if(ch)save()}
+function cr(s,e){function f(t){var h=+t.slice(0,2),m=t.slice(3);return m==="00"?""+h:h+":"+m}return f(s)+"–"+f(e)}
+function rg(s,e){function f(t){return t.slice(3)==="00"?t.slice(0,2):t}return f(s)+"–"+f(e)}
+function pad(h){return String(h).padStart(2,"0")+":00"}
+function fc(h){var a=Math.floor(h),m=Math.round((h-a)*60);return a?(a+" h"+(m?" "+String(m).padStart(2,"0"):"")):(m?m+" min":"0 h")}
+function fh(h){var a=Math.floor(h),m=Math.round((h-a)*60);return(a?a+" h":"")+(a&&m?" ":"")+(m?m+" min":"")||"0 h"}
+function fs(h){var a=Math.floor(h),m=Math.round((h-a)*60);return(a?a+"h":"")+(m?(a?m:m+"m"):"")}
+function hero(d){
+ var x=data[k(d)],f=FEST[k(d)],h='<div class="hero '+(x?x.t:"N")+'" data-d="'+k(d)+'"><div class="lab">'+(modo==="man"?"Mañana":"Hoy")+" · "+dname(d)+" "+d.getDate()+" "+MESES[d.getMonth()]+'</div>';
+ if(f)h+='<div class="pill">Festivo · '+f+'</div>';
+ if(!x)h+='<div class="big s" style="opacity:.5">Sin apuntar</div><div class="sm">Toca para añadirlo</div>';
+ else if(x.t==="L"||x.t==="V")h+='<div class="big s">'+T[x.t]+'</div>';
+ else{
+  h+=x.s?'<div class="big">'+x.s+(x.e?'<span> – '+x.e+'</span>':'')+'</div>':'<div class="big s">Falta la hora</div>';
+  h+='<div class="tags">'+(x.c?'<span class="tag" style="font-weight:700">Turno '+esc(x.c)+'</span>':"")+'<span class="tag">'+T[x.t]+'</span>'+'</div>';
+  h+='<div class="sm">Jornada '+(cfg.jh||8)+' h'+(x.x?' + '+fh(x.x)+' extra':'')+'</div>';
+ }
+ if(x&&x.n)h+='<div class="sm">'+esc(x.n)+'</div>';
+ return h+'</div>';
+}
+function render(){hrs();fest();greet();
+ var hoy=new Date(),d=new Date();if(modo==="man")d.setDate(d.getDate()+1);
+ document.querySelectorAll("#seg button").forEach(function(b){b.className=b.getAttribute("data-m")===modo?"on":""});
+ document.getElementById("hero").innerHTML=hero(d);
+ var w="";for(var i=0;i<7;i++){var e=new Date();e.setDate(e.getDate()+i);var x=data[k(e)];
+  w+='<div class="w '+(x?x.t:"")+(FEST[k(e)]?" f":"")+'" data-d="'+k(e)+'">'+dname(e).slice(0,3)+'<b>'+e.getDate()+'</b>'+(x&&(x.t==="M"||x.t==="T")?(x.c||x.s||"?"):x?(x.t==="L"?"libre":"vac."):"·")+'</div>'}
+ document.getElementById("week").innerHTML=w;
+ document.getElementById("mes").textContent=MESES[cur.getMonth()]+" "+cur.getFullYear();
+ var g='<div class="dh">'+["L","M","X","J","V","S","D"].map(function(n){return'<div class="dn">'+n+'</div>'}).join("")+'</div><div class="grid">';
+ var first=(new Date(cur.getFullYear(),cur.getMonth(),1).getDay()+6)%7,n=new Date(cur.getFullYear(),cur.getMonth()+1,0).getDate(),ex=0;
+ for(var a=0;a<first;a++)g+='<div class="d e"></div>';
+ for(var j=1;j<=n;j++){var q=new Date(cur.getFullYear(),cur.getMonth(),j),y=data[k(q)];if(y&&y.x)ex+=y.x;
+  var lb=y?(y.t==="L"?"Libre":y.t==="V"?"Vac.":(y.c||(y.s?cr(y.s,y.s).split("–")[0]:"")||"?")):"";
+  g+='<div class="d '+(y?y.t:"")+(FEST[k(q)]?" f":"")+(k(q)===k(hoy)?" hoy":"")+'" data-d="'+k(q)+'"><span class="n">'+j+'</span>'+(lb?'<span class="pl'+(y&&y.c?" lz":"")+'">'+esc(lb)+'</span>':"")+(y&&y.s&&y.e&&(y.t==="M"||y.t==="T")?'<span class="tm">'+(y.c?cr(y.s,y.e):"→"+cr(y.e,y.e).split("–")[0])+'</span>':"")+(y&&y.x?'<span class="ex">+'+fs(y.x)+'</span>':"")+'</div>'}
+ var rest=(first+n)%7;if(rest)for(var zz=rest;zz<7;zz++)g+='<div class="d e"></div>';
+ g+='</div>';
+ document.getElementById("exm").textContent=ex?("Extras este mes: "+fh(ex)):"";
+ document.getElementById("cal").innerHTML=g;
+ document.getElementById("bk").value=mkBackup();
+ document.querySelectorAll("[data-d]").forEach(function(el){el.onclick=function(){abrir(el.getAttribute("data-d"))}});
+ document.querySelectorAll("#seg button").forEach(function(b){b.onclick=function(){modo=b.getAttribute("data-m");render()}});
+}
+function editar(key){
+ var x=data[key]||{t:"M"},st={t:x.t,s:x.s||"",e:x.e||"",p:x.p||"",l:x.l||"",n:x.n||""};
+ var p=key.split("-"),d=new Date(+p[0],+p[1]-1,+p[2]),sb=document.getElementById("sb");
+ function leer(){var c=document.getElementById("nt"),pu=document.getElementById("pu"),lu=document.getElementById("lu");if(pu)st.p=pu.value.trim();if(lu)st.l=lu.value.trim();if(document.getElementById("hsh")){st.s=rd("hs");st.e=rd("he")}if(c)st.n=c.value}
+ function pint(){
+  var work=st.t==="M"||st.t==="T";
+  sb.innerHTML='<b style="font-size:20px">'+dname(d)+" "+d.getDate()+" de "+MESES[d.getMonth()]+'</b>'+(FEST[key]?'<div class="fe">Festivo · '+FEST[key]+'</div>':'')
+  +'<label>Turno</label><div>'+["M","T","L","V"].map(function(t){return'<span class="chip'+(st.t===t?" on":"")+'" data-t="'+t+'">'+T[t]+'</span>'}).join("")+'</div>'
+  +(work?'<label>Horario</label><div>'+cfg.lt.map(function(q,i){return'<span class="chip'+(st.s===q.s&&st.e===q.e?" on":"")+'" data-lt="'+i+'">'+esc(q.c)+' · '+rg(q.s,q.e)+'</span>'}).join("")+'</div><label>Entrada</label><div class="tp">'+hm("hs",st.s)+'</div><label>Salida</label><div class="tp">'+hm("he",st.e)+'</div>'
+  :"")
+  +'<label>Nota</label><input type="text" id="nt" value="'+esc(st.n)+'">'
+  +'<div class="warn" id="wr" style="margin-top:10px"></div><div class="r2" style="margin-top:8px"><button class="sec" id="bo">Borrar</button><button class="ok" id="ok">Guardar</button></div><button style="width:100%;color:var(--mu);padding:8px" id="ca">Cerrar</button>';
+  sb.querySelectorAll("[data-t]").forEach(function(b){b.onclick=function(){leer();st.t=b.getAttribute("data-t");var f=cfg.fr,dm=pad(f.a)+pad(f.b),dt=pad(f.b)+pad(f.c||22),cu=st.s+st.e;if((st.t==="M"||st.t==="T")&&(!st.s||cu===dm||cu===dt)){st.s=pad(st.t==="M"?f.a:f.b);st.e=pad(st.t==="M"?f.b:(f.c||22))}pint()}});
+  sb.querySelectorAll("[data-lt]").forEach(function(b){b.onclick=function(){leer();var q=cfg.lt[+b.getAttribute("data-lt")];st.s=q.s;st.e=q.e;if(st.t==="L"||st.t==="V")st.t="M";autoT(st);pint()}});
+  ["hsh","hsm"].forEach(function(i){var el=document.getElementById(i);if(el)el.onchange=function(){leer();autoT(st);pint()}});
+  ["heh","hem"].forEach(function(i){var el=document.getElementById(i);if(el)el.onchange=function(){leer();pint()}});
+  document.getElementById("ok").onclick=function(){leer();var w=st.t==="M"||st.t==="T";if(w&&!st.s){var wr=document.getElementById("wr");if(wr)wr.textContent="Pon la hora de entrada.";return}
+   data[key]={t:st.t,s:w?st.s:"",e:w?st.e:"",p:w?st.p:"",l:w?st.l:"",n:st.n,x:w?(x.x||0):0,c:w?mt(st.s,st.e):""};save();cerrar();render()};
+  document.getElementById("bo").onclick=function(){delete data[key];save();cerrar();render()};
+  document.getElementById("ca").onclick=cerrar;
+ }
+ pint();document.getElementById("sheet").classList.add("on");
+}
+function abrir(key){
+ var p=key.split("-"),d=new Date(+p[0],+p[1]-1,+p[2]),sb=document.getElementById("sb");
+ function tg(t){return'<span class="tag">'+esc(t)+'</span>'}
+ function pint(){
+  var x=data[key],f=FEST[key],m,h='<b style="font-size:20px">'+dname(d)+" "+d.getDate()+" de "+MESES[d.getMonth()]+'</b>'+(f?'<div class="fe">Festivo · '+f+'</div>':'');
+  if(!x)m="Este día no tiene turno apuntado.";
+  else if(x.t==="L")m="Este día tienes <b>libre</b>.";
+  else if(x.t==="V")m="Este día estás de <b>vacaciones</b>.";
+  else m=x.s?"El "+dname(d)+" "+d.getDate()+(x.c?" haces el turno <b>"+esc(x.c)+"</b>:":"")+" entras a las <b>"+x.s+"</b>"+(x.e?" y sales a las <b>"+x.e+"</b>":"")+".":"Turno de "+T[x.t].toLowerCase()+", pero falta la hora de entrada.";
+  h+='<p style="font-size:19px;line-height:1.4;margin:14px 0 10px">'+m+'</p>';
+  var w=x&&(x.t==="M"||x.t==="T");
+  if(w){h+='<div class="tags" style="margin:0 0 10px">'+tg(T[x.t])+'</div>'
+   +'<label>Horas extra</label><div class="st"><button id="mn">−</button><b>'+fh(x.x||0)+'</b><button id="ms">+</button></div>'
+   +'<div style="font-size:14px;color:var(--mu);text-align:center">Jornada habitual '+(cfg.jh||8)+' h'+(x.x?' + '+fh(x.x)+' extra':'')+'</div>'}
+  h+='<div class="r2" style="margin-top:16px">'+(x?'<button class="sec" id="bo">Borrar</button>':"")+'<button class="ok" id="ed">'+(x?"Editar turno":"Apuntar turno")+'</button></div><button style="width:100%;color:var(--mu);padding:8px" id="ca">Cerrar</button>';
+  sb.innerHTML=h;
+  function ch(v){x.x=Math.max(0,Math.min(12,(x.x||0)+v));if(!x.x)delete x.x;save();pint();render()}
+  if(w){document.getElementById("mn").onclick=function(){ch(-.5)};document.getElementById("ms").onclick=function(){ch(.5)}}
+  if(x)document.getElementById("bo").onclick=function(){delete data[key];save();cerrar();render()};
+  document.getElementById("ed").onclick=function(){editar(key)};
+  document.getElementById("ca").onclick=cerrar;
+ }
+ pint();document.getElementById("sheet").classList.add("on");
+}
+function cerrar(){document.getElementById("sheet").classList.remove("on")}
+document.getElementById("sheet").onclick=function(e){if(e.target.id==="sheet")cerrar()};
+document.getElementById("prev").onclick=function(){cur.setMonth(cur.getMonth()-1);render()};
+document.getElementById("next").onclick=function(){cur.setMonth(cur.getMonth()+1);render()};
+document.getElementById("rc").onclick=function(){cfg.col={};save();ap();setup();render()};
+document.getElementById("cp").onclick=function(){var m=document.getElementById("msg");copyTxt(mkBackup()).then(function(ok){m.textContent=ok?"Copiado. Pégalo en Notas o donde quieras guardarlo.":"No se pudo copiar solo. El texto ya está seleccionado: pulsa Copiar en el menú que sale."})};
+document.getElementById("sh").onclick=function(){var m=document.getElementById("msg");if(!navigator.share){m.textContent="Este navegador no permite compartir. Usa Copiar.";return}try{navigator.share({title:"Copia de seguridad",text:mkBackup()}).catch(function(e){if(e&&e.name!=="AbortError")m.textContent="No se pudo abrir el menú de compartir. Usa Copiar."})}catch(e){m.textContent="No se pudo abrir el menú de compartir. Usa Copiar."}};
+document.getElementById("bfb").onclick=function(){document.getElementById("bf").click()};
+document.getElementById("bf").onchange=function(){var f=this.files&&this.files[0],m=document.getElementById("msg");if(!f)return;var r=new FileReader();r.onload=function(){document.getElementById("bk").value=String(r.result||"");m.textContent="Archivo cargado. Pulsa Restaurar para aplicarlo."};r.onerror=function(){m.textContent="No se pudo leer el archivo."};r.readAsText(f);this.value=""};
+document.getElementById("rs").onclick=function(){var m=document.getElementById("msg"),b=this,r;try{r=parseBackup(document.getElementById("bk").value)}catch(e){m.textContent="No es una copia válida. Copia el texto completo, desde la primera { hasta la última }.";return}
+ var cur=Object.keys(data).length;
+ if(cur&&b.getAttribute("data-arm")!=="1"){b.setAttribute("data-arm","1");b.textContent="¿Reemplazar lo actual?";m.textContent="Ahora tienes "+cur+" días y la copia trae "+r.n+". Pulsa otra vez para reemplazarlos.";setTimeout(function(){b.removeAttribute("data-arm");b.textContent="Restaurar"},7000);return}
+ b.removeAttribute("data-arm");b.textContent="Restaurar";applyBackup(r);m.textContent="Restaurados "+r.n+" días"+(r.c?" y tus ajustes":"")+".";document.getElementById("undo").style.display="block"};
+document.getElementById("undo").onclick=function(){var m=document.getElementById("msg");try{var p=JSON.parse(localStorage.getItem("horario_prev")||"null");if(!p)throw 0;data=p.d;cfg=norm(p.c);save();ap();setup();render();m.textContent="Restauración deshecha.";this.style.display="none"}catch(e){m.textContent="No hay nada que deshacer."}};
+document.getElementById('gear').onclick=function(){vista(2)};document.getElementById('back').onclick=function(){vista(1)};
+ap();setup();backfill();render();initDb();var lastDay=k(new Date());function chk(){var t=k(new Date());if(t!==lastDay){lastDay=t;cur=new Date();cur.setDate(1);render()}else hrs()}
+setInterval(chk,60000);document.addEventListener("visibilitychange",function(){if(!document.hidden)chk()});window.addEventListener("pageshow",chk);
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+try{if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js")}catch(e){}
+</script>
+</body>
+</html>

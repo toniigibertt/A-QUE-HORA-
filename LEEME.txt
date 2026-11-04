@@ -1,0 +1,8 @@
+¿A qué hora? - app de horario de trabajo (versión web)
+
+Sube TODOS estos archivos juntos (en la misma carpeta) a un alojamiento web gratuito.
+- Netlify Drop: app.netlify.com/drop  (arrastra la carpeta o el ZIP y reclama el sitio con una cuenta gratuita para que no caduque)
+- GitHub Pages: sube los archivos a un repositorio público y activa Pages en Settings.
+
+En el iPhone: abre el enlace en Safari > Compartir > "Añadir a pantalla de inicio".
+Los datos de cada persona se guardan solo en su móvil. Conviene usar "Copia de seguridad" en Ajustes > Datos de vez en cuando.
