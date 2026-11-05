@@ -214,10 +214,12 @@ textarea#nt{height:74px;min-height:56px;resize:vertical;line-height:1.35}
 <details class="box acc">
 <summary><h3>Datos</h3></summary>
 <div class="accb">
-<p style="margin:0 0 10px;font-size:15px">Tus datos se guardan solo en este móvil. Haz una copia de seguridad de vez en cuando.</p><p style="margin:0 0 6px;font-size:13px;font-weight:600">Versión 0.25 beta · web</p>
+<p style="margin:0 0 10px;font-size:15px">Tus datos se guardan solo en este móvil. Haz una copia de seguridad de vez en cuando.</p><p style="margin:0 0 6px;font-size:13px;font-weight:600">Versión 0.26 beta · web</p>
 <button class="ok" id="bkd" style="width:100%;margin:0 0 6px">Descargar copia (.json)</button>
 <p id="bks" role="status" aria-live="polite"></p>
 <button class="sec" id="ice" style="width:100%;margin:0 0 4px">Exportar este mes al calendario (.ics)</button>
+<label for="alms" style="margin:10px 0 4px">Aviso de los turnos en el calendario</label>
+<div class="fr" style="margin:0 0 10px"><select id="alms" aria-label="Cuánto antes sonará el aviso"><option value="0">Sin aviso</option><option value="15">15 min antes</option><option value="30">30 min antes</option><option value="60">1 h antes</option></select></div>
 <p id="icm" role="status" aria-live="polite" style="font-size:13px;color:var(--mu);margin:0 0 10px"></p>
 <details><summary style="color:var(--mu);font-size:14px">Copia de seguridad (recomendada)</summary>
 <textarea id="bk" style="margin-top:10px"></textarea>
@@ -234,7 +236,7 @@ textarea#nt{height:74px;min-height:56px;resize:vertical;line-height:1.35}
 <div id="onb"></div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <script>
-var KEY="horario_v1",CK="horario_cfg",APP_V="0.25",BK_MS=30*86400000,data={},cfg={p:[],l:[],col:{},fr:{a:6,b:14,c:22}},cur=new Date(),modo="hoy";
+var KEY="horario_v1",CK="horario_cfg",APP_V="0.26",BK_MS=30*86400000,data={},cfg={p:[],l:[],col:{},fr:{a:6,b:14,c:22}},cur=new Date(),modo="hoy";
 cur.setDate(1);
 try{data=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){data={}}
 if(!data||typeof data!=="object"||Array.isArray(data))data={};
@@ -253,6 +255,7 @@ function norm(c){c=c||{};
  if(!c.lt.length)c.lt=DEFLT();
  c.lt.forEach(function(q){q.c=String(q.c).slice(0,2).toUpperCase();if(typeof q.s!=="string")q.s="09:00";if(typeof q.e!=="string")q.e="17:00"});
  if(typeof c.jh!=="number"||c.jh<1||c.jh>24)c.jh=8;
+ if(c.alm!==0&&c.alm!==15&&c.alm!==30&&c.alm!==60)c.alm=30;
  if(typeof c.bk!=="number"||c.bk<0)c.bk=0;
  if(typeof c.bkd!=="number"||c.bkd<0)c.bkd=0;
  if(c.inst!==1)c.inst=0;
@@ -469,10 +472,19 @@ function abrir(key){
   if(w){h+='<div class="tags" style="margin:0 0 10px">'+tg(noc?'🌙 Noche':T[x.t])+'</div>'
    +'<label>Horas extra</label><div class="st"><button id="mn">−</button><b>'+fh(x.x||0)+'</b><button id="ms">+</button></div>'
    +'<div style="font-size:14px;color:var(--mu);text-align:center">Jornada habitual '+(cfg.jh||8)+' h'+(x.x?' + '+fh(x.x)+' extra':'')+'</div>'}
+  if(w&&cfg.alm)h+='<button class="sec" id="alm" style="width:100%;margin:14px 0 0">⏰ Avisarme '+almTxt()+' antes de la entrada</button><p id="almm" role="status" aria-live="polite" style="font-size:13px;color:var(--mu);margin:8px 0 0"></p>';
   h+='<div class="r2" style="margin-top:16px">'+(x?'<button class="sec" id="bo">Borrar</button>':"")+'<button class="ok" id="ed">'+(x?"Editar turno":"Apuntar turno")+'</button></div><button style="width:100%;color:var(--mu);padding:8px" id="ca">Cerrar</button>';
   sb.innerHTML=h;
   function ch(v){x.x=Math.max(0,Math.min(12,(x.x||0)+v));if(!x.x)delete x.x;save();pint();render()}
   if(w){document.getElementById("mn").onclick=function(){ch(-.5)};document.getElementById("ms").onclick=function(){ch(.5)}}
+  var ab=document.getElementById("alm");
+  if(ab)ab.onclick=function(){
+   var mm=document.getElementById("almm"),r=avisoIcs(key);
+   if(!r){mm.textContent="No se pudo crear el aviso para este día.";return}
+   if(/Android/.test(navigator.userAgent)){try{location.href="intent://#Intent;action=android.intent.action.SHOW_ALARMS;end"}catch(e){}
+    mm.textContent="El aviso sonaría a las "+hAlm(r.s)+". Si no se ha abierto la app de Alarmas, ponla a esa hora a mano.";return}
+   var mo=guardarArchivo("turno-"+key+".ics",r.txt,"text/calendar");
+   mm.textContent=mo?("Aviso listo: sonará a las "+hAlm(r.s)+" ("+almTxt()+" antes de las "+r.s+"). Ábrelo y añádelo a tu calendario."):"No se pudo generar el archivo de aviso."};
   if(x)document.getElementById("bo").onclick=function(){var b=this;pedir2(b,"¿Borrar este día?",function(){delete data[key];save();cerrar();render()})};
   document.getElementById("ed").onclick=function(){editar(key)};
   document.getElementById("ca").onclick=cerrar;
@@ -503,16 +515,25 @@ function icsEsc(s){return String(s).replace(/\\/g,"\\\\").replace(/;/g,"\\;").re
 function icsDT(d,h,m){return d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0")+"T"+String(h).padStart(2,"0")+String(m).padStart(2,"0")+"00"}
 function icsD(d){return d.getFullYear()+String(d.getMonth()+1).padStart(2,"0")+String(d.getDate()).padStart(2,"0")}
 function icsFold(l){if(l.length<=70)return l;var o=l.slice(0,70),r=l.slice(70);while(r.length>69){o+="\r\n "+r.slice(0,69);r=r.slice(69)}return o+"\r\n "+r}
+function trg(m){return m===60?"-PT1H":"-PT"+m+"M"}function almTxt(){return cfg.alm===60?"1 h":cfg.alm+" min"}
+function hAlm(s){var m=tm(s)-cfg.alm,antes=m<0;if(antes)m+=1440;return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")+(antes?" (día anterior)":"")}
+function pushEvento(L,d,yy,stamp){
+ if(yy.t==="V"){var nx=new Date(d);nx.setDate(nx.getDate()+1);L.push("BEGIN:VEVENT","UID:vac-"+k(d)+"@a-que-hora","DTSTAMP:"+stamp,"DTSTART;VALUE=DATE:"+icsD(d),"DTEND;VALUE=DATE:"+icsD(nx),"SUMMARY:Vacaciones","TRANSP:TRANSPARENT","END:VEVENT");return true}
+ if((yy.t!=="M"&&yy.t!=="T")||!yy.s)return false;
+ var sh=+yy.s.slice(0,2),sm=+yy.s.slice(3,5),eh,em,ed=new Date(d);
+ if(yy.e){eh=+yy.e.slice(0,2);em=+yy.e.slice(3,5);if(eh*60+em<=sh*60+sm)ed.setDate(ed.getDate()+1)}
+ else{eh=(sh+(cfg.jh||8))%24;em=sm;if(sh+(cfg.jh||8)>=24)ed.setDate(ed.getDate()+1)}
+ var tit=(yy.c?"Turno "+yy.c:"Trabajo")+(yy.e?" · "+rg(yy.s,yy.e):" · desde las "+yy.s);
+ L.push("BEGIN:VEVENT","UID:"+k(d)+"@a-que-hora","DTSTAMP:"+stamp,"DTSTART:"+icsDT(d,sh,sm),"DTEND:"+icsDT(ed,eh,em),"SUMMARY:"+icsEsc(tit),yy.n?"DESCRIPTION:"+icsEsc(yy.n):"",cfg.prof.w?"LOCATION:"+icsEsc(cfg.prof.w):"");
+ if(cfg.alm)L.push("BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:"+icsEsc("Turno a las "+yy.s),"TRIGGER:"+trg(cfg.alm),"END:VALARM");
+ L.push("END:VEVENT");return true}
+function avisoIcs(key){var x=data[key];if(!x||(x.t!=="M"&&x.t!=="T")||!x.s||!cfg.alm)return null;var p=key.split("-"),d=new Date(+p[0],+p[1]-1,+p[2]);
+ var now=new Date(),stamp=now.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
+ var L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//A que hora//ES","CALSCALE:GREGORIAN","METHOD:PUBLISH"];pushEvento(L,d,x,stamp);L.push("END:VCALENDAR");
+ return{txt:L.filter(function(z){return z!==""}).map(icsFold).join("\r\n"),s:x.s}}
 function mesICS(){var y=cur.getFullYear(),mo=cur.getMonth(),L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//A que hora//ES","CALSCALE:GREGORIAN","METHOD:PUBLISH",];
  var now=new Date(),stamp=now.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,""),first=new Date(y,mo,1),last=new Date(y,mo+1,0),cnt=0;
- for(var d=new Date(first);d<=last;d.setDate(d.getDate()+1)){var yy=data[k(d)];if(!yy)continue;
-  if(yy.t==="V"){var nx=new Date(d);nx.setDate(nx.getDate()+1);L.push("BEGIN:VEVENT","UID:vac-"+k(d)+"@a-que-hora","DTSTAMP:"+stamp,"DTSTART;VALUE=DATE:"+icsD(d),"DTEND;VALUE=DATE:"+icsD(nx),"SUMMARY:Vacaciones","TRANSP:TRANSPARENT","END:VEVENT");cnt++;continue}
-  if((yy.t!=="M"&&yy.t!=="T")||!yy.s)continue;
-  var sh=+yy.s.slice(0,2),sm=+yy.s.slice(3,5),eh,em,ed=new Date(d);
-  if(yy.e){eh=+yy.e.slice(0,2);em=+yy.e.slice(3,5);if(eh*60+em<=sh*60+sm)ed.setDate(ed.getDate()+1)}
-  else{eh=(sh+(cfg.jh||8))%24;em=sm;if(sh+(cfg.jh||8)>=24)ed.setDate(ed.getDate()+1)}
-  var tit=(yy.c?"Turno "+yy.c:"Trabajo")+(yy.e?" · "+rg(yy.s,yy.e):" · desde las "+yy.s);
-  L.push("BEGIN:VEVENT","UID:"+k(d)+"@a-que-hora","DTSTAMP:"+stamp,"DTSTART:"+icsDT(d,sh,sm),"DTEND:"+icsDT(ed,eh,em),"SUMMARY:"+icsEsc(tit),yy.n?"DESCRIPTION:"+icsEsc(yy.n):"",cfg.prof.w?"LOCATION:"+icsEsc(cfg.prof.w):"","END:VEVENT");cnt++}
+ for(var d=new Date(first);d<=last;d.setDate(d.getDate()+1)){var yy=data[k(d)];if(yy&&pushEvento(L,d,yy,stamp))cnt++}
  L.push("END:VCALENDAR");return{txt:L.filter(function(x){return x!==""}).map(icsFold).join("\r\n"),n:cnt}}
 function guardarArchivo(nombre,txt,tipo){try{var f=new File([txt],nombre,{type:tipo});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:nombre}).catch(function(){});return "compartir"}}catch(e){}
  try{var a=document.createElement("a"),url=URL.createObjectURL(new Blob([txt],{type:tipo}));a.href=url;a.download=nombre;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(url);if(a.parentNode)a.parentNode.removeChild(a)},1500);return "descargar"}catch(e){return ""}}
@@ -561,6 +582,10 @@ function revCopia(){var b=document.getElementById("bkr");if(!b)return;var nd=Obj
  b.style.display="block"}
 document.getElementById("bkrn").onclick=function(){cfg.bkd=Date.now();save();document.getElementById("bkr").style.display="none"};
 document.getElementById("bkrd").onclick=function(){document.getElementById("bkd").click()};
+/* Avisos en el calendario */
+var almSel=document.getElementById("alms");
+almSel.value=cfg.alm?String(cfg.alm):"0";
+almSel.onchange=function(){cfg.alm=+this.value;save();render()};
 document.getElementById("bkd").onclick=function(){var m=document.getElementById("msg"),modo=guardarArchivo("a-que-hora-"+k(new Date())+".json",mkBackup(),"application/json");
  if(!modo){if(m)m.textContent="No se pudo descargar. Prueba con Copiar dentro de Copia de seguridad.";return}
  marcarCopia();if(m)m.textContent=modo==="compartir"?"Copia lista para guardar.":"Copia descargada. Guárdala en Archivos o envíatela.";};
